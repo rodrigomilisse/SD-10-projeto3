@@ -1,0 +1,12 @@
+.cache/
+.clangd/
+.clang-format
+.vscode/
+.clangd
+compile_commands.json
+
+object/
+binary/
+
+.DS_Store
+*:Zone.Identifier

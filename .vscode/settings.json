@@ -1,0 +1,45 @@
+{
+	"files.associations": {
+		"errno.h": "c",
+		"data.h": "c",
+		"client_stub.h": "c",
+		"list.h": "c",
+		"list-private.h": "c",
+		"thread_pool.h": "c",
+		"thread_pool-private.h": "c",
+		"network_server.h": "c",
+		"network_client.h": "c",
+		"serialization.h": "c",
+		"serialization-private.h": "c",
+		"message-private.h": "c",
+		"list_skel.h": "c",
+		"sdmessage.pb-c.h": "c"
+	},
+	"C_Cpp.default.includePath": [
+		"${workspaceFolder}/include",
+		"${workspaceFolder}/**"
+	],
+	"C_Cpp.default.defines": [],
+	"C_Cpp.default.compilerPath": "/usr/bin/gcc",
+	"C_Cpp.default.cStandard": "c11",
+	"C_Cpp.default.cppStandard": "c++17",
+	"C_Cpp.default.compilerArgs": [
+		"-Wall",
+		"-Wextra",
+		"-Werror",
+		"-g",
+		"-pthread"
+	],
+	"files.exclude": {
+		"**/.git": true,
+		"**/.DS_Store": true,
+		"**/object": true,
+		"**/binary": true,
+		"**/lib": true
+	},
+	"search.exclude": {
+		"**/object": true,
+		"**/binary": true,
+		"**/lib": true
+	}
+}

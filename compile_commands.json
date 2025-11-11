@@ -1,0 +1,77 @@
+[
+	{
+		"directory": "/home/rodri/documents/FCUL/3ºano/SD/SD-10-projeto3",
+		"command": "gcc -std=c11 -Wall -Wextra -Werror -g -Iinclude -pthread -c source/data.c -o object/data.o",
+		"file": "source/data.c"
+	},
+	{
+		"directory": "/home/rodri/documents/FCUL/3ºano/SD/SD-10-projeto3",
+		"command": "gcc -std=c11 -Wall -Wextra -Werror -g -Iinclude -pthread -c source/list.c -o object/list.o",
+		"file": "source/list.c"
+	},
+	{
+		"directory": "/home/rodri/documents/FCUL/3ºano/SD/SD-10-projeto3",
+		"command": "gcc -std=c11 -Wall -Wextra -Werror -g -Iinclude -pthread -c source/client_stub.c -o object/client_stub.o",
+		"file": "source/client_stub.c"
+	},
+	{
+		"directory": "/home/rodri/documents/FCUL/3ºano/SD/SD-10-projeto3",
+		"command": "gcc -std=c11 -Wall -Wextra -Werror -g -Iinclude -pthread -c source/list_client.c -o object/list_client.o",
+		"file": "source/list_client.c"
+	},
+	{
+		"directory": "/home/rodri/documents/FCUL/3ºano/SD/SD-10-projeto3",
+		"command": "gcc -std=c11 -Wall -Wextra -Werror -g -Iinclude -pthread -c source/network_client.c -o object/network_client.o",
+		"file": "source/network_client.c"
+	},
+	{
+		"directory": "/home/rodri/documents/FCUL/3ºano/SD/SD-10-projeto3",
+		"command": "gcc -std=c11 -Wall -Wextra -Werror -g -Iinclude -pthread -c source/list_server.c -o object/list_server.o",
+		"file": "source/list_server.c"
+	},
+	{
+		"directory": "/home/rodri/documents/FCUL/3ºano/SD/SD-10-projeto3",
+		"command": "gcc -std=c11 -Wall -Wextra -Werror -g -Iinclude -pthread -c source/list_skel.c -o object/list_skel.o",
+		"file": "source/list_skel.c"
+	},
+	{
+		"directory": "/home/rodri/documents/FCUL/3ºano/SD/SD-10-projeto3",
+		"command": "gcc -std=c11 -Wall -Wextra -Werror -g -Iinclude -pthread -c source/network_server.c -o object/network_server.o",
+		"file": "source/network_server.c"
+	},
+	{
+		"directory": "/home/rodri/documents/FCUL/3ºano/SD/SD-10-projeto3",
+		"command": "gcc -std=c11 -Wall -Wextra -Werror -g -Iinclude -pthread -c source/message-private.c -o object/message-private.o",
+		"file": "source/message-private.c"
+	},
+	{
+		"directory": "/home/rodri/documents/FCUL/3ºano/SD/SD-10-projeto3",
+		"command": "gcc -std=c11 -Wall -Wextra -Werror -g -Iinclude -pthread -c source/serialization.c -o object/serialization.o",
+		"file": "source/serialization.c"
+	},
+	{
+		"directory": "/home/rodri/documents/FCUL/3ºano/SD/SD-10-projeto3",
+		"command": "gcc -std=c11 -Wall -Wextra -Werror -g -Iinclude -pthread -c source/serialization-private.c -o object/serialization-private.o",
+		"file": "source/serialization-private.c"
+	},
+	{
+		"directory": "/home/rodri/documents/FCUL/3ºano/SD/SD-10-projeto3",
+		"command": "gcc -std=c11 -Wall -Wextra -Werror -g -Iinclude -pthread -c source/list_server_threaded.c -o object/list_server_threaded.o",
+		"file": "source/list_server_threaded.c"
+	},
+	{
+		"directory": "/home/rodri/documents/FCUL/3ºano/SD/SD-10-projeto3",
+		"command": "gcc -std=c11 -Wall -Wextra -Werror -g -Iinclude -pthread -c source/network_server_threaded.c -o object/network_server_threaded.o",
+		"file": "source/network_server_threaded.c"
+	},
+	{
+		"directory": "/home/rodri/documents/FCUL/3ºano/SD/SD-10-projeto3",
+		"command": "gcc -std=c11 -Wall -Wextra -Werror -g -Iinclude -pthread -c source/thread_pool.c -o object/thread_pool.o",
+		"file": "source/thread_pool.c"
+	},
+	{
+		"directory": "/home/rodri/documents/FCUL/3ºano/SD/SD-10-projeto3",
+		"command": "gcc -std=c11 -Wall -Wextra -Werror -g -Iinclude -pthread -c source/sdmessage.pb-c.c -o object/sdmessage.pb-c.o",
+		"file": "source/sdmessage.pb-c.c"
+	}
+]

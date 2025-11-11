@@ -31,7 +31,7 @@ CLIENT_BIN  := $(BIN_DIR)/list_client
 
 # === Servidor ===
 SERVER_SRCS := $(SRC_DIR)/list_server.c $(SRC_DIR)/list_skel.c $(SRC_DIR)/network_server.c \
-               $(SRC_DIR)/message-private.c $(SRC_DIR)/serialization.c $(SRC_DIR)/serialization-private.c
+               $(SRC_DIR)/network_server-private.c $(SRC_DIR)/message-private.c $(SRC_DIR)/serialization.c $(SRC_DIR)/serialization-private.c
 SERVER_OBJS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SERVER_SRCS)) $(PB_OBJ)
 SERVER_BIN  := $(BIN_DIR)/list_server
 

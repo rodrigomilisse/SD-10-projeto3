@@ -2,6 +2,7 @@
 
 object/
 binary/
+lib/
 
 .DS_Store
 *:Zone.Identifier

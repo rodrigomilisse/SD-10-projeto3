@@ -126,16 +126,20 @@ int network_server_init(short port)
 	return sockfd;
 }
 
+#define MAX_CLIENTES_ATIVOS 5 // TODO
 int network_main_loop(int listening_socket, struct list_t *list)
 {
+	int num_clientes_ativos = 0; // TODO
 	if (listening_socket < 0 || list == NULL) return -1;
 
 	while (!g_shutdown)
 	{
 		struct sockaddr_in client;
 		socklen_t size_client = sizeof(client);
+
 		int connsockfd =
 		    accept(listening_socket, (struct sockaddr *)&client, &size_client);
+
 		if (connsockfd < 0)
 		{
 			if (errno == EINTR && g_shutdown) break;
@@ -143,11 +147,25 @@ int network_main_loop(int listening_socket, struct list_t *list)
 			continue;
 		}
 
-		for (;;)
+		if (num_clientes_ativos < MAX_CLIENTES_ATIVOS)
+		{
+			// cria uma nova thread passando-lhe connsockfd
+			// regista no log do servidor a ligação criada
+			// incrementa o numero de clientes_ativos
+		}
+		else
+		{
+			close(connsockfd);
+			continue; // TODO
+		}
+
+		// Thread secundária de atendimento do cliente
+		MessageT *message;
+		while ((message = network_receive(connsockfd)))
 		{
 			if (g_shutdown) break;
 
-			MessageT *req = network_receive(connsockfd);
+			MessageT *req = message;
 			if (!req) break;
 
 			if (invoke(req, list) != 0)
@@ -161,13 +179,13 @@ int network_main_loop(int listening_socket, struct list_t *list)
 				message_t__free_unpacked(req, NULL);
 				break;
 			}
-
 			message_t__free_unpacked(req, NULL);
 		}
-
 		close(connsockfd);
+		// regista no log do servidor o fecho da ligação com o cliente
+		num_clientes_ativos--;
+		// termina a thread secundária
 	}
-
 	return g_shutdown ? 0 : -1;
 }
 

@@ -31,5 +31,8 @@ int write_all_full(int fd, const void *buf, size_t len);
 MessageT *recv_message(int fd);
 int send_message(int fd, MessageT *msg);
 
+/* Função thread-safe de logging */
+void server_log(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+
 #endif
 

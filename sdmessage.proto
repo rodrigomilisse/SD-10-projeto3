@@ -36,6 +36,9 @@ message message_t {
         OP_GETLISTBYTEAR = 60;
         OP_ORDER = 70;
         OP_ERROR = 99;
+        OP_BUSY = 100; 
+        OP_READY = 101;
+        
     }
     Opcode opcode = 1;
 

@@ -18,12 +18,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdarg.h>
+#include <sys/time.h>
 
 /* Variáveis globais */
 pthread_t client_threads[MAX_CLIENTES_ATIVOS];
 int num_clientes_ativos = 0;
 pthread_mutex_t num_clientes_ativos_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t server_log_mutex = PTHREAD_MUTEX_INITIALIZER;
+FILE *fptr;
+struct timeval tv;
+/* struct timezone is obsolete; pass NULL to gettimeofday for portability */
 // pthread_mutex_t list_mutex = PTHREAD_MUTEX_INITIALIZER; TODO
 
 volatile sig_atomic_t g_shutdown = 0;
@@ -32,6 +37,7 @@ int network_server_init(short port)
 {
 	int sockfd;
 	struct sockaddr_in server_address;
+	fptr = fopen("log.log", "w");
 
 	signal(SIGPIPE, SIG_IGN);
 
@@ -109,9 +115,8 @@ int network_main_loop(int listening_socket, struct list_t *list)
 			}
 			pthread_detach(thread_id);
 
-			pthread_mutex_lock(&server_log_mutex);
-			// regista no log do servidor a ligação criada
-			pthread_mutex_unlock(&server_log_mutex);
+			gettimeofday(&tv, NULL);
+			server_log("%ld %s:%u CONNECT\n", tv.tv_sec, inet_ntoa(client.sin_addr), ntohs(client.sin_port));
 
 			pthread_mutex_lock(&num_clientes_ativos_mutex);
 			num_clientes_ativos++;
@@ -123,6 +128,7 @@ int network_main_loop(int listening_socket, struct list_t *list)
 			close(connsockfd);
 		}
 	}
+	fclose(fptr);
 	return g_shutdown ? 0 : -1;
 }
 
@@ -141,5 +147,21 @@ int network_server_close(int socket_fd)
 	if (socket_fd < 0) return -1;
 	return close(socket_fd) == 0 ? 0 : -1;
 }
+
+void server_log(const char *fmt,...)
+{
+    if (!fptr) return; // segurança
+
+    pthread_mutex_lock(&server_log_mutex);
+
+    va_list ap;
+    va_start(ap, fmt);
+    vfprintf(fptr, fmt, ap);
+    va_end(ap);
+
+    fflush(fptr); // garante escrita imediata
+    pthread_mutex_unlock(&server_log_mutex);
+}
+
 
 void network_server_request_shutdown(void) { g_shutdown = 1; }

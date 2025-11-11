@@ -187,7 +187,7 @@ const ProtobufCMessageDescriptor data__descriptor =
   (ProtobufCMessageInit) data__init,
   NULL,NULL,NULL    /* reserved[123] */
 };
-static const ProtobufCEnumValue message_t__opcode__enum_values_by_number[9] =
+static const ProtobufCEnumValue message_t__opcode__enum_values_by_number[11] =
 {
   { "OP_BAD", "MESSAGE_T__OPCODE__OP_BAD", 0 },
   { "OP_ADD", "MESSAGE_T__OPCODE__OP_ADD", 10 },
@@ -198,20 +198,24 @@ static const ProtobufCEnumValue message_t__opcode__enum_values_by_number[9] =
   { "OP_GETLISTBYTEAR", "MESSAGE_T__OPCODE__OP_GETLISTBYTEAR", 60 },
   { "OP_ORDER", "MESSAGE_T__OPCODE__OP_ORDER", 70 },
   { "OP_ERROR", "MESSAGE_T__OPCODE__OP_ERROR", 99 },
+  { "OP_BUSY", "MESSAGE_T__OPCODE__OP_BUSY", 100 },
+  { "OP_READY", "MESSAGE_T__OPCODE__OP_READY", 101 },
 };
 static const ProtobufCIntRange message_t__opcode__value_ranges[] = {
-{0, 0},{10, 1},{20, 2},{30, 3},{40, 4},{50, 5},{60, 6},{70, 7},{99, 8},{0, 9}
+{0, 0},{10, 1},{20, 2},{30, 3},{40, 4},{50, 5},{60, 6},{70, 7},{99, 8},{0, 11}
 };
-static const ProtobufCEnumValueIndex message_t__opcode__enum_values_by_name[9] =
+static const ProtobufCEnumValueIndex message_t__opcode__enum_values_by_name[11] =
 {
   { "OP_ADD", 1 },
   { "OP_BAD", 0 },
+  { "OP_BUSY", 9 },
   { "OP_DEL", 3 },
   { "OP_ERROR", 8 },
   { "OP_GET", 2 },
   { "OP_GETLISTBYTEAR", 6 },
   { "OP_GETMODELS", 5 },
   { "OP_ORDER", 7 },
+  { "OP_READY", 10 },
   { "OP_SIZE", 4 },
 };
 const ProtobufCEnumDescriptor message_t__opcode__descriptor =
@@ -221,9 +225,9 @@ const ProtobufCEnumDescriptor message_t__opcode__descriptor =
   "Opcode",
   "MessageT__Opcode",
   "",
-  9,
+  11,
   message_t__opcode__enum_values_by_number,
-  9,
+  11,
   message_t__opcode__enum_values_by_name,
   9,
   message_t__opcode__value_ranges,

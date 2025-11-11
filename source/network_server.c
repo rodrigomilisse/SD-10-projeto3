@@ -14,12 +14,19 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netinet/in.h>
+#include <pthread.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#define MAX_CLIENTES_ATIVOS 5 // TODO
+int num_clientes_ativos = 0;  // TODO
+pthread_mutex_t num_clientes_ativos_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t server_log_mutex = PTHREAD_MUTEX_INITIALIZER;
+// pthread_mutex_t list_mutex = PTHREAD_MUTEX_INITIALIZER; TODO
 
 static int read_all_full(int fd, void *buf, size_t len)
 {
@@ -126,10 +133,8 @@ int network_server_init(short port)
 	return sockfd;
 }
 
-#define MAX_CLIENTES_ATIVOS 5 // TODO
 int network_main_loop(int listening_socket, struct list_t *list)
 {
-	int num_clientes_ativos = 0; // TODO
 	if (listening_socket < 0 || list == NULL) return -1;
 
 	while (!g_shutdown)
@@ -146,15 +151,24 @@ int network_main_loop(int listening_socket, struct list_t *list)
 			perror("accept");
 			continue;
 		}
-
+		pthread_mutex_lock(&num_clientes_ativos_mutex);
 		if (num_clientes_ativos < MAX_CLIENTES_ATIVOS)
 		{
+			pthread_mutex_unlock(&num_clientes_ativos_mutex);
+
 			// cria uma nova thread passando-lhe connsockfd
+
+			pthread_mutex_lock(&server_log_mutex);
 			// regista no log do servidor a ligação criada
-			// incrementa o numero de clientes_ativos
+			pthread_mutex_unlock(&server_log_mutex);
+
+			pthread_mutex_lock(&num_clientes_ativos_mutex);
+			num_clientes_ativos++;
+			pthread_mutex_unlock(&num_clientes_ativos_mutex);
 		}
 		else
 		{
+			pthread_mutex_unlock(&num_clientes_ativos_mutex);
 			close(connsockfd);
 			continue; // TODO
 		}
@@ -182,8 +196,12 @@ int network_main_loop(int listening_socket, struct list_t *list)
 			message_t__free_unpacked(req, NULL);
 		}
 		close(connsockfd);
+		pthread_mutex_lock(&server_log_mutex);
 		// regista no log do servidor o fecho da ligação com o cliente
+		pthread_mutex_unlock(&server_log_mutex);
+		pthread_mutex_lock(&num_clientes_ativos_mutex);
 		num_clientes_ativos--;
+		pthread_mutex_unlock(&num_clientes_ativos_mutex);
 		// termina a thread secundária
 	}
 	return g_shutdown ? 0 : -1;

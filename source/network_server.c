@@ -23,10 +23,18 @@
 #include <unistd.h>
 
 #define MAX_CLIENTES_ATIVOS 5 // TODO
-int num_clientes_ativos = 0;  // TODO
+pthread_t client_threads[MAX_CLIENTES_ATIVOS];
+int num_clientes_ativos = 0; // TODO
 pthread_mutex_t num_clientes_ativos_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t server_log_mutex = PTHREAD_MUTEX_INITIALIZER;
 // pthread_mutex_t list_mutex = PTHREAD_MUTEX_INITIALIZER; TODO
+
+/* Estrutura para passar argumentos para a thread de atendimento ao cliente */
+struct client_args
+{
+	int connsockfd;
+	struct list_t *list;
+};
 
 static int read_all_full(int fd, void *buf, size_t len)
 {
@@ -133,6 +141,8 @@ int network_server_init(short port)
 	return sockfd;
 }
 
+void *client_loop(void *arg);
+
 int network_main_loop(int listening_socket, struct list_t *list)
 {
 	if (listening_socket < 0 || list == NULL) return -1;
@@ -157,6 +167,23 @@ int network_main_loop(int listening_socket, struct list_t *list)
 			pthread_mutex_unlock(&num_clientes_ativos_mutex);
 
 			// cria uma nova thread passando-lhe connsockfd
+			struct client_args *args = malloc(sizeof(struct client_args));
+			if (args == NULL)
+			{
+				close(connsockfd);
+				continue;
+			}
+			args->connsockfd = connsockfd;
+			args->list = list;
+
+			pthread_t thread_id;
+			if (pthread_create(&thread_id, NULL, client_loop, args) != 0)
+			{
+				free(args);
+				close(connsockfd);
+				continue;
+			}
+			pthread_detach(thread_id);
 
 			pthread_mutex_lock(&server_log_mutex);
 			// regista no log do servidor a ligação criada
@@ -170,41 +197,52 @@ int network_main_loop(int listening_socket, struct list_t *list)
 		{
 			pthread_mutex_unlock(&num_clientes_ativos_mutex);
 			close(connsockfd);
-			continue; // TODO
 		}
-
-		// Thread secundária de atendimento do cliente
-		MessageT *message;
-		while ((message = network_receive(connsockfd)))
-		{
-			if (g_shutdown) break;
-
-			MessageT *req = message;
-			if (!req) break;
-
-			if (invoke(req, list) != 0)
-			{
-				req->opcode = MESSAGE_T__OPCODE__OP_ERROR;
-				req->c_type = MESSAGE_T__C_TYPE__CT_NONE;
-			}
-
-			if (network_send(connsockfd, req) != 0)
-			{
-				message_t__free_unpacked(req, NULL);
-				break;
-			}
-			message_t__free_unpacked(req, NULL);
-		}
-		close(connsockfd);
-		pthread_mutex_lock(&server_log_mutex);
-		// regista no log do servidor o fecho da ligação com o cliente
-		pthread_mutex_unlock(&server_log_mutex);
-		pthread_mutex_lock(&num_clientes_ativos_mutex);
-		num_clientes_ativos--;
-		pthread_mutex_unlock(&num_clientes_ativos_mutex);
-		// termina a thread secundária
 	}
 	return g_shutdown ? 0 : -1;
+}
+
+void *client_loop(void *arg)
+{
+	struct client_args *args = (struct client_args *)arg;
+	int connsockfd = args->connsockfd;
+	struct list_t *list = args->list;
+
+	// Thread secundária de atendimento do cliente
+	MessageT *message;
+	while ((message = network_receive(connsockfd)))
+	{
+		if (g_shutdown) break;
+
+		MessageT *req = message;
+		if (!req) break;
+
+		if (invoke(req, list) != 0)
+		{
+			req->opcode = MESSAGE_T__OPCODE__OP_ERROR;
+			req->c_type = MESSAGE_T__C_TYPE__CT_NONE;
+		}
+
+		if (network_send(connsockfd, req) != 0)
+		{
+			message_t__free_unpacked(req, NULL);
+			break;
+		}
+		message_t__free_unpacked(req, NULL);
+	}
+	close(connsockfd);
+	pthread_mutex_lock(&server_log_mutex);
+	// regista no log do servidor o fecho da ligação com o cliente
+	pthread_mutex_unlock(&server_log_mutex);
+	pthread_mutex_lock(&num_clientes_ativos_mutex);
+	num_clientes_ativos--;
+	pthread_mutex_unlock(&num_clientes_ativos_mutex);
+
+	// Libertar a estrutura de argumentos
+	free(args);
+
+	// termina a thread secundária
+	return NULL;
 }
 
 MessageT *network_receive(int client_socket)

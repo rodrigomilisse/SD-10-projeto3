@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 /* Variáveis globais privadas */
 extern pthread_t client_threads[MAX_CLIENTES_ATIVOS];
@@ -95,6 +96,18 @@ void *client_loop(void *arg)
 {
 	struct client_args *args = (struct client_args *)arg;
 	int connsockfd = args->connsockfd;
+
+	char ip[INET_ADDRSTRLEN] = "0.0.0.0";
+	unsigned port = 0;
+	{
+		struct sockaddr_in peer;
+		socklen_t plen = sizeof(peer);
+		if (getpeername(connsockfd, (struct sockaddr *)&peer, &plen) == 0) {
+			inet_ntop(AF_INET, &peer.sin_addr, ip, sizeof(ip));
+			port = (unsigned)ntohs(peer.sin_port);
+		}
+	}
+
 	struct list_t *list = args->list;
 
 	// Thread secundária de atendimento do cliente
@@ -120,6 +133,10 @@ void *client_loop(void *arg)
 		message_t__free_unpacked(req, NULL);
 	}
 	close(connsockfd);
+	{
+		struct timeval tv2; gettimeofday(&tv2, NULL);
+		server_log("%ld %s:%u DISCONNECT\n", tv2.tv_sec, ip, port);
+	}
 	pthread_mutex_lock(&server_log_mutex);
 	// regista no log do servidor o fecho da ligação com o cliente
 	pthread_mutex_unlock(&server_log_mutex);

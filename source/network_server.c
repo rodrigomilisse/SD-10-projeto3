@@ -37,7 +37,7 @@ int network_server_init(short port)
 {
 	int sockfd;
 	struct sockaddr_in server_address;
-	fptr = fopen("log.log", "w");
+	fptr = fopen("server.log", "w");
 
 	signal(SIGPIPE, SIG_IGN);
 

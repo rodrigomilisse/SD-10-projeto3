@@ -25,7 +25,7 @@ LIB_OBJS  := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(LIB_SRCS))
 LIB_A     := $(LIB_DIR)/liblist.a
 
 # === Cliente ===
-CLIENT_SRCS := $(SRC_DIR)/list_client.c $(SRC_DIR)/client_stub.c $(SRC_DIR)/network_client.c
+CLIENT_SRCS := $(SRC_DIR)/list_client.c $(SRC_DIR)/client_stub.c $(SRC_DIR)/network_client.c $(SRC_DIR)/network_client-private.c
 CLIENT_OBJS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(CLIENT_SRCS)) $(PB_OBJ)
 CLIENT_BIN  := $(BIN_DIR)/list_client
 

@@ -75,7 +75,7 @@ int network_server_init(short port)
 
 int network_main_loop(int listening_socket, struct list_t *list)
 {
-	if (listening_socket < 0 || list == NULL) return -1;
+	if (listening_socket < 0 || list == NULL) { return -1; }
 
 	while (!g_shutdown)
 	{
@@ -92,7 +92,12 @@ int network_main_loop(int listening_socket, struct list_t *list)
 			continue;
 		}
 		pthread_mutex_lock(&num_clientes_ativos_mutex);
-		if (num_clientes_ativos < MAX_CLIENTES_ATIVOS)
+		if (num_clientes_ativos >= MAX_CLIENTES_ATIVOS)
+		{
+			pthread_mutex_unlock(&num_clientes_ativos_mutex);
+			close(connsockfd);
+		}
+		else
 		{
 			pthread_mutex_unlock(&num_clientes_ativos_mutex);
 
@@ -122,11 +127,6 @@ int network_main_loop(int listening_socket, struct list_t *list)
 			pthread_mutex_lock(&num_clientes_ativos_mutex);
 			num_clientes_ativos++;
 			pthread_mutex_unlock(&num_clientes_ativos_mutex);
-		}
-		else
-		{
-			pthread_mutex_unlock(&num_clientes_ativos_mutex);
-			close(connsockfd);
 		}
 	}
 	fclose(fptr);

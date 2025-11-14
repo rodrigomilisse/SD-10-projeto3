@@ -13,13 +13,13 @@
 #include <netinet/in.h>
 #include <pthread.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <stdarg.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 /* Variáveis globais */
 pthread_t client_threads[MAX_CLIENTES_ATIVOS];
@@ -116,7 +116,8 @@ int network_main_loop(int listening_socket, struct list_t *list)
 			pthread_detach(thread_id);
 
 			gettimeofday(&tv, NULL);
-			server_log("%ld %s:%u CONNECT\n", tv.tv_sec, inet_ntoa(client.sin_addr), ntohs(client.sin_port));
+			server_log("%ld %s:%u CONNECT\n", tv.tv_sec,
+			           inet_ntoa(client.sin_addr), ntohs(client.sin_port));
 
 			pthread_mutex_lock(&num_clientes_ativos_mutex);
 			num_clientes_ativos++;
@@ -148,20 +149,19 @@ int network_server_close(int socket_fd)
 	return close(socket_fd) == 0 ? 0 : -1;
 }
 
-void server_log(const char *fmt,...)
+void server_log(const char *fmt, ...)
 {
-    if (!fptr) return; // segurança
+	if (!fptr) return; // segurança
 
-    pthread_mutex_lock(&server_log_mutex);
+	pthread_mutex_lock(&server_log_mutex);
 
-    va_list ap;
-    va_start(ap, fmt);
-    vfprintf(fptr, fmt, ap);
-    va_end(ap);
+	va_list ap;
+	va_start(ap, fmt);
+	vfprintf(fptr, fmt, ap);
+	va_end(ap);
 
-    fflush(fptr); // garante escrita imediata
-    pthread_mutex_unlock(&server_log_mutex);
+	fflush(fptr); // garante escrita imediata
+	pthread_mutex_unlock(&server_log_mutex);
 }
-
 
 void network_server_request_shutdown(void) { g_shutdown = 1; }

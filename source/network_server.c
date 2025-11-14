@@ -92,15 +92,12 @@ int network_main_loop(int listening_socket, struct list_t *list)
 			continue;
 		}
 		pthread_mutex_lock(&num_clientes_ativos_mutex);
-		if (num_clientes_ativos >= MAX_CLIENTES_ATIVOS)
-		{
-			pthread_mutex_unlock(&num_clientes_ativos_mutex);
-			close(connsockfd);
-		}
+		int n = num_clientes_ativos;
+		pthread_mutex_unlock(&num_clientes_ativos_mutex);
+
+		if (n >= MAX_CLIENTES_ATIVOS) { close(connsockfd); }
 		else
 		{
-			pthread_mutex_unlock(&num_clientes_ativos_mutex);
-
 			// cria uma nova thread passando-lhe connsockfd
 			struct client_args *args = malloc(sizeof(struct client_args));
 			if (args == NULL)

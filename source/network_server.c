@@ -95,9 +95,29 @@ int network_main_loop(int listening_socket, struct list_t *list)
 		int n = num_clientes_ativos;
 		pthread_mutex_unlock(&num_clientes_ativos_mutex);
 
-		if (n >= MAX_CLIENTES_ATIVOS) { close(connsockfd); }
+		if (n >= MAX_CLIENTES_ATIVOS)
+		{
+			// Enviar OP_BUSY antes de fechar
+			MessageT busy_msg;
+			message_t__init(&busy_msg);
+			busy_msg.opcode = MESSAGE_T__OPCODE__OP_BUSY;
+			busy_msg.c_type = MESSAGE_T__C_TYPE__CT_NONE;
+			send_message(connsockfd, &busy_msg);
+			close(connsockfd);
+		}
 		else
 		{
+			// Enviar OP_READY antes de criar thread
+			MessageT ready_msg;
+			message_t__init(&ready_msg);
+			ready_msg.opcode = MESSAGE_T__OPCODE__OP_READY;
+			ready_msg.c_type = MESSAGE_T__C_TYPE__CT_NONE;
+			if (send_message(connsockfd, &ready_msg) != 0)
+			{
+				close(connsockfd);
+				continue;
+			}
+
 			// cria uma nova thread passando-lhe connsockfd
 			struct client_args *args = malloc(sizeof(struct client_args));
 			if (args == NULL)

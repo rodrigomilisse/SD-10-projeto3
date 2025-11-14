@@ -46,6 +46,26 @@ static int recv_all(int fd, void *buf, size_t len)
 	return 0;
 }
 
+static MessageT *recv_message(int fd)
+{
+	uint32_t net_len = 0;
+	if (recv_all(fd, &net_len, sizeof(net_len)) < 0) return NULL;
+	uint32_t len = ntohl(net_len);
+	if (len == 0 || len > (32u * 1024u * 1024u)) return NULL;
+
+	uint8_t *buf = (uint8_t *)malloc(len);
+	if (!buf) return NULL;
+	if (recv_all(fd, buf, len) < 0)
+	{
+		free(buf);
+		return NULL;
+	}
+
+	MessageT *msg = message_t__unpack(NULL, len, buf);
+	free(buf);
+	return msg;
+}
+
 int network_connect(struct rlist_t *rlist)
 {
 	if (!rlist || !rlist->server_address || rlist->server_port <= 0) return -1;
@@ -80,6 +100,31 @@ int network_connect(struct rlist_t *rlist)
 		return -1;
 	}
 
+	// Receber mensagem de estado do servidor (OP_READY ou OP_BUSY)
+	MessageT *status_msg = recv_message(sockfd);
+	if (!status_msg)
+	{
+		close(sockfd);
+		return -1;
+	}
+
+	// Processar mensagem de estado
+	if (status_msg->opcode == MESSAGE_T__OPCODE__OP_BUSY)
+	{
+		fprintf(stderr, "Server busy. Try again later.\n");
+		message_t__free_unpacked(status_msg, NULL);
+		close(sockfd);
+		return -1;
+	}
+
+	if (status_msg->opcode != MESSAGE_T__OPCODE__OP_READY)
+	{
+		message_t__free_unpacked(status_msg, NULL);
+		close(sockfd);
+		return -1;
+	}
+
+	message_t__free_unpacked(status_msg, NULL);
 	rlist->sockfd = sockfd;
 	return 0;
 }

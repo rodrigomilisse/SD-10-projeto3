@@ -35,14 +35,8 @@ SERVER_SRCS := $(SRC_DIR)/list_server.c $(SRC_DIR)/list_skel.c $(SRC_DIR)/networ
 SERVER_OBJS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SERVER_SRCS)) $(PB_OBJ)
 SERVER_BIN  := $(BIN_DIR)/list_server
 
-# === Servidor com Thread Pool (Enunciado 3) ===
-SERVER_THREADED_SRCS := $(SRC_DIR)/list_server_threaded.c $(SRC_DIR)/list_skel.c $(SRC_DIR)/network_server_threaded.c \
-                        $(SRC_DIR)/thread_pool.c $(SRC_DIR)/message-private.c $(SRC_DIR)/serialization.c $(SRC_DIR)/serialization-private.c
-SERVER_THREADED_OBJS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SERVER_THREADED_SRCS)) $(PB_OBJ)
-SERVER_THREADED_BIN  := $(BIN_DIR)/list_server_threaded
-
 .PHONY: all
-all: protobuf liblist list_client list_server list_server_threaded
+all: protobuf liblist list_client list_server 
 
 .PHONY: protobuf
 protobuf: $(PB_C) $(PB_H)
@@ -72,14 +66,6 @@ list_server: dirs protobuf $(SERVER_BIN)
 
 $(SERVER_BIN): $(SERVER_OBJS) $(LIB_A) | dirs
 	@$(CC) $(SERVER_OBJS) -L$(LIB_DIR) -llist $(LDFLAGS) -o $@
-
-# === list_server_threaded (Enunciado 3) ===
-.PHONY: list_server_threaded
-list_server_threaded: dirs protobuf $(SERVER_THREADED_BIN)
-	@echo "Servidor com thread pool compilado: $(SERVER_THREADED_BIN)"
-
-$(SERVER_THREADED_BIN): $(SERVER_THREADED_OBJS) $(LIB_A) | dirs
-	@$(CC) $(SERVER_THREADED_OBJS) -L$(LIB_DIR) -llist $(LDFLAGS) -o $@
 
 # Regra geral de compilação (.c -> .o) 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | dirs

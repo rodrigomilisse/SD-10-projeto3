@@ -119,6 +119,70 @@ void *client_loop(void *arg)
 		MessageT *req = message;
 		if (!req) break;
 
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		
+		switch (req->opcode)
+		{
+		case MESSAGE_T__OPCODE__OP_SIZE:		//tamanho
+			server_log("%ld %s:%u REQUEST SIZE\n", tv.tv_sec, ip, port);
+			break;
+
+		case MESSAGE_T__OPCODE__OP_ADD:		//adicionar	
+			if (req->data && req->data->modelo)
+				server_log("%ld %s:%u REQUEST ADD DATA \"%s\"\n", tv.tv_sec, ip,
+				           port, req->data->modelo);
+			else
+				server_log("%ld %s:%u REQUEST ADD DATA\n", tv.tv_sec, ip, port);
+			break;
+
+		case MESSAGE_T__OPCODE__OP_GET:		
+			if (req->c_type == MESSAGE_T__C_TYPE__CT_YEAR)
+				server_log("%ld %s:%u REQUEST GET YEAR %d\n", tv.tv_sec, ip,
+				           port, req->result);
+			else if (req->c_type == MESSAGE_T__C_TYPE__CT_MARCA)
+				server_log("%ld %s:%u REQUEST GET MARCA %d\n", tv.tv_sec, ip,
+				           port, req->result); 
+			else
+				server_log("%ld %s:%u REQUEST GET\n", tv.tv_sec, ip, port);
+			break;
+
+		case MESSAGE_T__OPCODE__OP_DEL:		//apagar
+		{
+			const char *model =
+			    (req->n_models > 0 && req->models && req->models[0])
+			        ? req->models[0]
+			        : (req->data ? req->data->modelo : NULL);
+			if (model)
+				server_log("%ld %s:%u REQUEST DEL MODEL \"%s\"\n", tv.tv_sec,
+				           ip, port, model);
+			else
+				server_log("%ld %s:%u REQUEST DEL MODEL\n", tv.tv_sec, ip,
+				           port);
+			break;
+		}
+
+		case MESSAGE_T__OPCODE__OP_GETMODELS:		// modelos
+			server_log("%ld %s:%u REQUEST GETMODELS\n", tv.tv_sec, ip, port);
+			break;
+
+		case MESSAGE_T__OPCODE__OP_GETLISTBYTEAR:	// lista p/ ano
+			server_log("%ld %s:%u REQUEST GETLISTBYTEAR\n", tv.tv_sec, ip,
+			           port);
+			break;
+
+		case MESSAGE_T__OPCODE__OP_ORDER:			
+			server_log("%ld %s:%u REQUEST ORDER\n", tv.tv_sec, ip, port);
+			break;
+			
+		default:
+			server_log("%ld %s:%u REQUEST OP_%d\n", tv.tv_sec, ip, port,
+			           (int)req->opcode);
+			break;
+		}
+
+
+
 		if (invoke(req, list) != 0)
 		{
 			req->opcode = MESSAGE_T__OPCODE__OP_ERROR;

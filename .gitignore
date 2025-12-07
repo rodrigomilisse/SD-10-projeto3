@@ -9,3 +9,5 @@ lib/
 
 sd2025_2026-projeto2.pdf
 sd2526_projeto3_enunciado.pdf
+*.log
+*.sh
